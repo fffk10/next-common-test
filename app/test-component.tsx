@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 function Cell({
   value,
@@ -15,6 +15,7 @@ function Cell({
 }) {
   const [editValue, setEditValue] = useState(value)
   const [isEdit, setIsEdit] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const cellClick = () => {
     setIsEdit(true)
@@ -25,19 +26,30 @@ function Cell({
   }
 
   const enter = () => {
-    setIsEdit(false)
     save(editValue, row, col)
+    setIsEdit(false)
   }
 
+  useEffect(() => {
+    if (isEdit && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEdit])
+
   return (
-    <td onClick={cellClick}>
+    <td>
       {isEdit ? (
         <>
-          <input type='text' value={editValue} onChange={change} />
+          <input
+            type='text'
+            value={editValue}
+            onChange={change}
+            ref={inputRef}
+          />
           <button onClick={enter}>確定</button>
         </>
       ) : (
-        <>{value}</>
+        <span onClick={cellClick}>{value}</span>
       )}
     </td>
   )
@@ -50,7 +62,7 @@ function WorkSheet() {
     ['3-1', '3-2', '3-3'],
   ])
 
-  const save = (value, row, col) => {
+  const save = (value: string, row: number, col: number) => {
     const newCells = [...cells]
     newCells[row][col] = value
     setCells(newCells)
@@ -79,8 +91,12 @@ function WorkSheet() {
 }
 
 export default function TestComponent() {
+  const [searchKeyword, setSearchKeyword] = useState('')
+
   return (
     <>
+      <input type='text' />
+      <button>確定</button>
       <WorkSheet />
     </>
   )
