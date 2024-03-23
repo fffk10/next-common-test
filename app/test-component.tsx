@@ -55,7 +55,7 @@ function Cell({
   )
 }
 
-function WorkSheet() {
+function WorkSheet({ searchKeyword }: { searchKeyword: string }) {
   const [cells, setCells] = useState([
     ['1-1', '1-2', '1-3'],
     ['2-1', '2-2', '2-3'],
@@ -68,11 +68,15 @@ function WorkSheet() {
     setCells(newCells)
   }
 
+  const filteredRows = searchKeyword
+    ? cells.filter((row) => row.some((cell) => cell.includes(searchKeyword)))
+    : cells
+
   console.log(cells)
   return (
     <table>
       <tbody>
-        {cells.map((row, i) => (
+        {filteredRows.map((row, i) => (
           <tr key={i}>
             {row.map((cell, j) => (
               <Cell
@@ -92,12 +96,17 @@ function WorkSheet() {
 
 export default function TestComponent() {
   const [searchKeyword, setSearchKeyword] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const search = () => {
+    setSearchKeyword(inputRef.current?.value ?? '')
+  }
 
   return (
     <>
-      <input type='text' />
-      <button>確定</button>
-      <WorkSheet />
+      <input type='text' ref={inputRef} />
+      <button onClick={search}>確定</button>
+      <WorkSheet searchKeyword={searchKeyword} />
     </>
   )
 }
